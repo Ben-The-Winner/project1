@@ -1,0 +1,109 @@
+# Beat tracking example
+
+import librosa
+from tkinter import *
+import pymongo
+from playsound import playsound
+
+root = Tk()
+root.geometry("800x800")
+
+title=Label(root,text="On a Better Note",bd=9,relief=GROOVE,
+font=("times new roman",50,"bold"),bg="cyan",fg="green")
+title.pack(side=TOP,fill=X)
+
+input= Entry(root, width=100)
+input.pack()
+input.insert(0,"enter file: ")
+
+
+def play():
+    playsound(input.get())
+
+
+
+ 
+# making a button which trigger the function so sound can be playeed
+play_button = Button(root, text="Play Song", font=("Helvetica", 32),
+relief=GROOVE, command=play,bg="orange")
+play_button.pack(pady=20)
+
+
+ 
+info=Label(root,text="Click on the button above to play the song ",
+           font=("times new roman",10,"bold")).pack(pady=20)
+
+
+def convert(lst):
+    res_dct = {str(i): lst[i] for i in range(0, len(lst), 1)}
+    return res_dct
+# import numpy as np
+# import matplotlib.pyplot as plt
+# import librosa.display
+from songify import songify
+import IPython.display as ipd
+# import mir_eval.sonify
+client = pymongo.MongoClient("mongodb+srv://ben6119070:BL246810@cluster0.qojmx.mongodb.net/OnABetterNote?retryWrites=true&w=majority")
+dbcol = client["OnABetterNote"]["Notes"]
+#myclient = pymongo.MongoClient("mongodb+srv://ben6119070:BL246810@cluster0.qojmx.mongodb.net/")
+#mydb = myclient["OnABetterNote"]
+#dbcol = mydb["Notes"]
+# 1. Get the file path to an included audio example
+filename = librosa.example('nutcracker')
+ipd.Audio(filename)
+# 2. Load the audio as a waveform `y`, Store the sampling rate as `sr`
+y, sr = librosa.load(filename)
+import numpy as np
+import soundfile as sf
+
+# 3. Extract the notes 
+notes = librosa.midi_to_note(range(0,12), key='B:min')
+words = notes
+sf.write('stereo_file.wav', y, 44100, 'PCM_24')
+res=convert(notes)
+dbcol.insert_one(res)
+# 4. Rearrange them with an algo from songify.py
+notes = songify(dbcol)
+words2 = notes
+
+# 5. Run the default beat tracker
+tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+words3 = tempo
+
+# 6. Convert the frame indices of beat events into timestamps
+beat_times = librosa.frames_to_time(beat_frames, sr=sr)
+
+
+
+def Click():
+    myLabel = Label(root, text = words)
+    myLabel.pack()
+
+def Click2():
+    myLabel2 = Label(root, text = words2)
+    myLabel2.pack()
+
+
+
+def Click3():
+    myLabel3 = Label(root, text = words3)
+    myLabel3.pack()
+
+
+
+myButton= Button(root, text= "click here to see the original notes", command= Click, bg="yellow")
+myButton.pack()
+
+myButton2= Button(root, text= "click here to see the shuffled notes", command= Click2, bg="green")
+myButton2.pack()
+
+
+myButton3= Button(root, text= "click here to see the tempo", command= Click3, bg="red")
+myButton3.pack()
+
+root.configure(background="magenta")
+
+
+root.mainloop()
+
+
