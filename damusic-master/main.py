@@ -60,15 +60,9 @@ play_button3 = Button(root, text="Play Option3: stereo_file.wav", font=("Helveti
 relief=GROOVE, command=play3,bg="green")
 play_button3.pack(pady=20)
 
-
 def convert(lst):
     res_dct = {str(i): lst[i] for i in range(0, len(lst), 1)}
     return res_dct
-
-
-
-
-
 
 def custom_play_notes(notes_list):
     #recieving  list of notes and play them with custom sound
@@ -84,20 +78,17 @@ def custom_play_notes(notes_list):
 client = pymongo.MongoClient("mongodb+srv://ben6119070:BL246810@cluster0.qojmx.mongodb.net/OnABetterNote?retryWrites=true&w=majority")
 dbcol= client["OnABetterNote"]["Notes"]
 
-
 # 1. Get the file path to an included audio example
 filename = librosa.example('nutcracker')
 ipd.Audio(filename)
 # 2. Load the audio as a waveform `y`, Store the sampling rate as `sr`
 y, sr = librosa.load(filename)
 
-
 # 3. Extract the notes 
 notes = librosa.midi_to_note(range(0,12), key='B:min')
 words = notes
 sf.write('stereo_file.wav', y, 44100, 'PCM_24')
 res=convert(notes)
-#custom_play_notes(res)
 dbcol.insert_one(res)
 # 4. Rearrange them with an algo from songify.py
 notes = songify(dbcol)
@@ -112,31 +103,28 @@ beat_times = librosa.frames_to_time(beat_frames, sr=sr)
 
 
 
-def Click():
+def click_display_original_notes():
     myLabel = Label(root, text = words)
     myLabel.pack()
 
-def Click2():
+def click_play_shuffled_notes():
     myLabel2 = Label(root, text = words2)
     myLabel2.pack()
     custom_play_notes(words2)
 
-
-
-def Click3():
+def click_display_tempo():
     myLabel3 = Label(root, text = words3)
     myLabel3.pack()
 
 
 
-myButton= Button(root, text= "click here to see the original notes", command= Click, bg="green")
+myButton= Button(root, text= "click here to see the original notes", command= click_display_original_notes, bg="green")
 myButton.pack()
 
-myButton2= Button(root, text= "click here to see the shuffled notes", command= Click2, bg="green")
+myButton2= Button(root, text= "click here to see the shuffled notes", command= click_play_shuffled_notes, bg="green")
 myButton2.pack()
 
-
-myButton3= Button(root, text= "click here to see the tempo", command= Click3, bg="green")
+myButton3= Button(root, text= "click here to see the tempo", command= click_display_tempo, bg="green")
 myButton3.pack()
 
 root.configure(background="yellow")
