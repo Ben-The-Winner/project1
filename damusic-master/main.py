@@ -27,9 +27,6 @@ def select_file():
     showinfo(title='Selected File',message= file_name)
     return file_name
 
-# open button
-open_button = ttk.Button(root, text='Choose a song', command=select_file)
-open_button.pack()
 
 file_name=select_file()
 
@@ -64,8 +61,30 @@ stop_button.pack(pady=20)
 # 1. Get the file path to an included audio example
 
 def click_display_original_notes():
-    myLabel = Label(root, text = result["original_notes"])
-    myLabel.pack()
+    o_notes = Tk()
+    o_notes.geometry("800x50")
+    #myLabel = Label(o_notes, wraplength= 300,justify= "center",text = result["original_notes"])
+    #myLabel.pack()
+    myText= result["original_notes"]
+
+
+
+    # Add a Scrollbar(horizontal)
+    h=Scrollbar(o_notes, orient='horizontal')
+    h.pack(side=BOTTOM, fill='x')
+
+    # Add a text widget
+    text=Text(o_notes, font=("Calibri, 16"), wrap=NONE, xscrollcommand=h.set)
+    text.pack()
+
+    # Add some text in the text widget
+    text.insert(END, myText)
+
+    # Attach the scrollbar with the text widget
+    h.config(command=text.xview)
+
+
+
 
 def click_play_shuffled_notes():
     myLabel2 = Label(root, text = result["shuffled_notes"])

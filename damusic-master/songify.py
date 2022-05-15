@@ -1,7 +1,7 @@
 def songify(dbcol):
     import random
     n = random.randint(0,18)
-    NotesList = dbcol.find_one()
+    NotesList = dbcol.find().sort("_id",-1).limit(1)[0]["res"]
     sub_list=[
         [NotesList["0"],NotesList["2"],NotesList["5"],NotesList["7"]],
         [NotesList["0"],NotesList["3"],NotesList["5"],NotesList["7"]],

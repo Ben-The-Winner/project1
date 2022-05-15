@@ -1,3 +1,4 @@
+import time
 import librosa
 from tkinter import *
 from pandas import array
@@ -28,16 +29,8 @@ def tone_fix(notes):
 
 
 def identify_notes(y):
-    #result=[]
     D_short = librosa.stft(y)
-    #print(librosa.hz_to_note(D_short[0]))
-    #for i in range(len(D_short)):
-     #  result.append(0.1)
-    #print(D_short[1024])
-   # for i in range(len(D_short)-1):
-      #  print(D_short[i])
-    result = librosa.hz_to_note(D_short[0])
-    #print(result)
+    result = librosa.hz_to_note(D_short[1])
     return result
 
 
@@ -57,9 +50,11 @@ def load_file(filename):
     notes= identify_notes(y)
     print(notes)
     result["original_notes"] = notes
-    #sf.write(filename, y, 22050, 'PCM_24')
     res=convert_to_dict(notes)
-    dbcol.insert_one(res)
+    dbrecords={}
+    dbrecords['res']=res
+    dbrecords['ts']=time.time()
+    dbcol.insert_one(dbrecords)
     # 4. Rearrange them with an algo from songify.py
     s_notes = songify(dbcol)
     print(s_notes)
@@ -80,7 +75,7 @@ def custom_play_notes(notes_list):
     #recieving  list of notes and play them with custom sound
     for i in notes_list:
        try:
-           playsound("damusic-master/note_sounds/"+i+".wav", block=True)
+           playsound("damusic-master/note_sounds/"+i[0]+"-1.wav", block=True)
        except:
           print("file not found could not play note: "+ i)
             
