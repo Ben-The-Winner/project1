@@ -1,5 +1,9 @@
 # Beat tracking example
 
+from fileinput import filename
+from multiprocessing.pool import TERMINATE
+from tkinter import filedialog, ttk
+from tkinter.messagebox import showinfo
 import librosa
 from tkinter import *
 from pandas import array
@@ -9,30 +13,42 @@ from songify import songify
 import IPython.display as ipd
 import numpy as np
 import soundfile as sf
+from shuffling import convert_to_dict
+from shuffling import load_file
+from shuffling import custom_play_notes
 
 root = Tk()
 root.geometry("800x800")
 
-title=Label(root,text="On a Better Note",bd=9,relief=GROOVE,
+def select_file():
+    filetypes = (('audio files', '*.wav'),('All files', '*.*'))
+    file_name = filedialog.askopenfilename(title='Choose a song',initialdir='/home/ben-123/Desktop/Ben/project1/damusic-master/the_song_files',filetypes=filetypes)
+
+    showinfo(title='Selected File',message= file_name)
+    return file_name
+
+# open button
+open_button = ttk.Button(root, text='Choose a song', command=select_file)
+open_button.pack()
+
+file_name=select_file()
+
+
+title=Label(root,text="On A Better Note",bd=9,relief=GROOVE,
 font=("times new roman",50,"bold"),bg="green",fg="yellow")
 title.pack(side=TOP,fill=X)
 
-input= Entry(root, width=100)
-input.pack()
-input.insert(0,"enter file or press an option button: ")
+
+result = load_file(file_name) 
 
 
 def play():
-    playsound(input.get(), block= False)
-    
-def play3_wav():
-    playsound("the_song_files/sample3.wav",block=False)
+    playsound(file_name, block= False)
     
 def stop():
-    stop()       
+     playsound("damusic-master/note_sounds/shutup.swf.wav", block=True)  
     
-
- 
+     
 # making a button which trigger the function so sound can be played
 play_button = Button(root, text="Play the song you entered", font=("Helvetica", 20),
 relief=GROOVE, command=play,bg="green")
@@ -43,60 +59,9 @@ relief=GROOVE, command=stop,bg="green")
 stop_button.pack(pady=20)
 
 
-play_sample3_wav = Button(root, text="Play sample3.wav", font=("Helvetica", 10),
-relief=GROOVE, command=play3_wav,bg="green")
-play_sample3_wav.pack(pady=20)
-
-
-def convert(lst):
-    res_dct = {str(i): lst[i] for i in range(0, len(lst), 1)}
-    return res_dct
-
-def load_file(filename):
-    client = pymongo.MongoClient("mongodb+srv://ben6119070:BL246810@cluster0.qojmx.mongodb.net/OnABetterNote?retryWrites=true&w=majority")
-    dbcol= client["OnABetterNote"]["Notes"]
-    result = {}
-    # 2. Load the audio as a waveform `y`, Store the sampling rate as `sr`
-    y, sr = librosa.load(filename)
-
-    # 3. Extract the notes 
-    notes = librosa.midi_to_note(range(0,12), key='B:min')
-    result["original_notes"] = notes
-    sf.write('stereo_file.wav', y, 44100, 'PCM_24')
-    res=convert(notes)
-    dbcol.insert_one(res)
-    # 4. Rearrange them with an algo from songify.py
-    s_notes = songify(dbcol)
-    result["shuffled_notes"] = s_notes
-
-    # 5. Run the default beat tracker
-    tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-    result["tempo"] = tempo
-
-    # 6. Convert the frame indices of beat events into timestamps
-    result["beat_times"] = librosa.frames_to_time(beat_frames, sr=sr)
-    return result
-
-
-
-def custom_play_notes(notes_list):
-    #recieving  list of notes and play them with custom sound
-    for i in notes_list:
-        print("note " +i+" is ")
-        try:
-            playsound("note_sounds/"+i+".wav", block=False)
-        except:
-            print("file not found could not play note: "+ i)
-            
-    return
 
 
 # 1. Get the file path to an included audio example
-filename = "stereo_file.wav"
-result = load_file(filename)
-
-
-
 
 def click_display_original_notes():
     myLabel = Label(root, text = result["original_notes"])
@@ -113,14 +78,14 @@ def click_display_tempo():
 
 
 
-myButton= Button(root, text= "click here to see the original notes", command= click_display_original_notes, bg="green")
-myButton.pack()
+myButton_original_notes= Button(root, text= "click here to see the original notes", command= click_display_original_notes, bg="green")
+myButton_original_notes.pack()
 
-myButton2= Button(root, text= "click here to see the shuffled notes", command= click_play_shuffled_notes, bg="green")
-myButton2.pack()
+myButton_shuffled_notes= Button(root, text= "click here to see the shuffled notes", command= click_play_shuffled_notes, bg="green")
+myButton_shuffled_notes.pack()
 
-myButton3= Button(root, text= "click here to see the tempo", command= click_display_tempo, bg="green")
-myButton3.pack()
+myButton_tempo= Button(root, text= "click here to see the tempo", command= click_display_tempo, bg="green")
+myButton_tempo.pack()
 
 root.configure(background="yellow")
 
