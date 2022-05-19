@@ -1,13 +1,9 @@
 import time
 import librosa
 from tkinter import *
-from pandas import array
 import pymongo
 from playsound import playsound
 from songify import songify
-import IPython.display as ipd
-import numpy as np
-import soundfile as sf
 
 
 
@@ -40,13 +36,9 @@ def load_file(filename):
     result = {}
 
     # 2. Load the audio as a waveform `y`, Store the sampling rate as `sr`
-    y, sr = librosa.load(filename)
-    print("the filename is "+filename)
-
-    #, duration= 15.0
+    y, sr = librosa.load(filename, duration= 1.5)
 
     # 3. Extract the notes 
-    #notes = librosa.midi_to_note(range(1,13),key='C:maj')
     notes= identify_notes(y)
     print(notes)
     result["original_notes"] = notes
@@ -58,7 +50,6 @@ def load_file(filename):
     # 4. Rearrange them with an algo from songify.py
     s_notes = songify(dbcol)
     print(s_notes)
-    #fix_notes= tone_fix(s_notes)
     result["shuffled_notes"] = s_notes
 
     # 5. Run the default beat tracker
@@ -73,9 +64,13 @@ def load_file(filename):
 
 def custom_play_notes(notes_list):
     #recieving  list of notes and play them with custom sound
+    playsound("damusic-master/note_sounds/Beatbox.wav", block=False)
     for i in notes_list:
        try:
-           playsound("damusic-master/note_sounds/"+i[0]+"-1.wav", block=True)
+           if i[1]=="♯":
+                playsound("damusic-master/note_sounds/"+i[0]+i[1]+"-1.wav", block=True)
+           else:
+                playsound("damusic-master/note_sounds/"+i[0]+"-1.wav", block=True)
        except:
           print("file not found could not play note: "+ i)
             

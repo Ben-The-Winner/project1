@@ -1,19 +1,10 @@
 # Beat tracking example
 
-from fileinput import filename
-from multiprocessing.pool import TERMINATE
+#from fileinput import filename
 from tkinter import filedialog, ttk
 from tkinter.messagebox import showinfo
-import librosa
 from tkinter import *
-from pandas import array
-import pymongo
 from playsound import playsound
-from songify import songify
-import IPython.display as ipd
-import numpy as np
-import soundfile as sf
-from shuffling import convert_to_dict
 from shuffling import load_file
 from shuffling import custom_play_notes
 
@@ -41,20 +32,11 @@ result = load_file(file_name)
 
 def play():
     playsound(file_name, block= False)
-    
-def stop():
-     playsound("damusic-master/note_sounds/shutup.swf.wav", block=True)  
-    
      
 # making a button which trigger the function so sound can be played
 play_button = Button(root, text="Play the song you entered", font=("Helvetica", 20),
 relief=GROOVE, command=play,bg="green")
 play_button.pack(pady=20)
-
-stop_button = Button(root, text="Stop", font=("Helvetica", 15),
-relief=GROOVE, command=stop,bg="green")
-stop_button.pack(pady=20)
-
 
 
 
@@ -63,11 +45,7 @@ stop_button.pack(pady=20)
 def click_display_original_notes():
     o_notes = Tk()
     o_notes.geometry("800x50")
-    #myLabel = Label(o_notes, wraplength= 300,justify= "center",text = result["original_notes"])
-    #myLabel.pack()
     myText= result["original_notes"]
-
-
 
     # Add a Scrollbar(horizontal)
     h=Scrollbar(o_notes, orient='horizontal')
@@ -89,7 +67,8 @@ def click_display_original_notes():
 def click_play_shuffled_notes():
     myLabel2 = Label(root, text = result["shuffled_notes"])
     myLabel2.pack()
-    custom_play_notes(result["shuffled_notes"])
+    for i in range(4):
+        custom_play_notes(result["shuffled_notes"])
 
 def click_display_tempo():
     myLabel3 = Label(root, text = result["tempo"])
